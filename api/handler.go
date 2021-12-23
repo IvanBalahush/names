@@ -8,34 +8,39 @@ import (
 	"task2/pkg/fileutil"
 )
 
+const fileDirectory = "./pkg/data_store/in/"
+
 func firstNamesHandler(w http.ResponseWriter, r *http.Request) {
-	err := fileutil.PageInput(w, "./pkg/data_store/in/first_names.txt")
-	if err!=nil {
-		log.Fatal(err)
+	err := fileutil.PageInput(w, fileDirectory + "first_names.txt")
+	if err != nil {
+		log.Print("HTTP 500 - Internal server error ")
+		http.Error(w, "Internal server error", 500)
 	}
 }
 
-func lastNamesHandler(w http.ResponseWriter, r *http.Request){
-	err := fileutil.PageInput(w, "./pkg/data_store/in/last_names.txt")
+func lastNamesHandler(w http.ResponseWriter, r *http.Request) {
+	err := fileutil.PageInput(w, fileDirectory + "last_names.txt")
 	if err != nil {
-		log.Fatal(err)
+		log.Print("HTTP 500 - Internal server error ")
+		http.Error(w, "Internal server error", 500)
 	}
 }
 
 func generatedNamesHandler(w http.ResponseWriter, r *http.Request) {
-	firstNames, err := fileutil.ScanFile("./pkg/data_store/in/first_names.txt")
+	firstNames, err := fileutil.ScanFile(fileDirectory + "first_names.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
-	lastNames, err := fileutil.ScanFile("./pkg/data_store/in/last_names.txt")
+
+	lastNames, err := fileutil.ScanFile(fileDirectory + "last_names.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
-	generations := fileutil.GenerateNames(firstNames, lastNames, 3)
-	for _, generation := range generations {
-		_, err := fmt.Fprintln(w, generation)
-		if err != nil {
-			log.Fatal(err)
-		}
+
+	generations := fileutil.Generator(firstNames, lastNames, 3)
+	_, err = fmt.Fprintln(w, generations)
+	if err != nil {
+		log.Print("HTTP 500 - Internal server error")
+		http.Error(w, "Internal server error", 500)
 	}
 }
